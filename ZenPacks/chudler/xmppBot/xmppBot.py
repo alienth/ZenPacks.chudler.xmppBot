@@ -142,7 +142,7 @@ class XmppBot(ZenActions, ZCmdBase, PBDaemon):
             self.log.info('processed %s rules in %.2f secs', len(self.actions), time.time()-start)
         except:
             self.log.exception('unexpected exception')
-        reactor.callLater(60, self.runCycle)
+        reactor.callLater(self.options.cycletime, self.runCycle)
 
     # ripped from zenactions.py
     def loadActionRules(self):
