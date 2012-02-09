@@ -8,7 +8,7 @@ from Products.ZenUtils.ZCmdBase import ZCmdBase
 from Products.AdvancedQuery import MatchGlob, Eq, Or
 
 class ZenAdapter:
-"""Thin wrapper for accessing and controlling parts of zenoss"""
+    """Thin wrapper for accessing and controlling parts of zenoss"""
 
     def __init__(self):
         """I don't know a suitable way to get dmd, so
