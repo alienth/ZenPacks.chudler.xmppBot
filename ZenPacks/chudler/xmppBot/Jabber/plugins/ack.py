@@ -81,6 +81,12 @@ class Ack(Plugin):
             client.sendMessage(message, sender, messageType)
 
   def findUser(self, sender, adapter):
+
+        # remove the resource from the sender
+        if '/' in sender:
+            sender = sender.split('/')[0]
+
+
         for user in adapter.userSettings():
             try:
                 jabberProperty = user.getProperty('JabberId').lower()
