@@ -1,7 +1,6 @@
 """Extract data from Zenoss RRD files."""
 
 from Jabber.Plugins import Plugin
-from Jabber.ZenAdapter import ZenAdapter
 from Jabber.Options import Options
 from optparse import OptionError
 
@@ -17,7 +16,6 @@ class Data(Plugin):
 
     opts = self.options()
 
-    adapter = ZenAdapter()
     try:
         (options, arguments) = opts.parse_args(args)
         log.debug('Done parsing arguments.  Options are "%s", arguments expanded to %s' % (options, arguments))
@@ -30,7 +28,7 @@ class Data(Plugin):
         client.sendMessage(message, sender, messageType)
         return False
 
-    devices = adapter.devices(options.deviceName)
+    devices = self.adapter.devices(options.deviceName)
     if len(devices) == 0:
         message = 'Cannot find a device, ip or mac for "%s"' % options.deviceName
         client.sendMessage(message, sender, messageType)

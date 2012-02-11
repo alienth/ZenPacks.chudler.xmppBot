@@ -1,7 +1,6 @@
 """Acknowledge Zenoss events by their EventID"""
 
 from Jabber.Plugins import Plugin
-from Jabber.ZenAdapter import ZenAdapter
 from Jabber.Options import Options
 from optparse import OptionError
 import transaction
@@ -16,7 +15,6 @@ class Ack(Plugin):
 
     log.debug('Alert Ack plugin running with arguments: %s' % args)
 
-    adapter = ZenAdapter()
 
     opts = self.options()
 
@@ -38,13 +36,13 @@ class Ack(Plugin):
 
     if options.all:
         log.debug('User has requested to ack all events.')
-        for event in adapter.events():
+        for event in self.adapter.events():
             acking.append(event.evid)
             log.debug('Queuing %s event to ack.' % event.evid)
-        return self.acknowledge(client, adapter, options.test, options.verbose, acking, sender, messageType, log)
+        return self.acknowledge(client, options.test, options.verbose, acking, sender, messageType, log)
 
     idsToAck = options.eventIds.lower().split(',')
-    for event in adapter.events():
+    for event in self.adapter.events():
         # python 2.5 will accept tuple instead of this.
         for idToAck in idsToAck:
             eventid = event.evid
@@ -54,13 +52,13 @@ class Ack(Plugin):
                 acking.append(eventid)
 
     if len(acking) > 0:
-        return self.acknowledge(client, adapter, options.test, options.verbose, acking, sender, messageType, log)
+        return self.acknowledge(client, options.test, options.verbose, acking, sender, messageType, log)
     else:
         message = 'Sorry.  Found no events to acknowledge.'
         client.sendMessage(str(message), sender, messageType)
         return False
 
-  def acknowledge(self, client, adapter, dryrun, verbose, events, sender, messageType, log):
+  def acknowledge(self, client, dryrun, verbose, events, sender, messageType, log):
         if dryrun:
             log.debug('Test mode is activated, so events will not be acknowledged.')
             message = 'Test mode: %d WOULD have been acknowledged.' % len(events)
@@ -68,8 +66,8 @@ class Ack(Plugin):
 
         else:
             log.debug('Acking all queued events.')
-            zenUser = self.findUser(sender, adapter)
-            adapter.ackEvents(zenUser, events)
+            zenUser = self.findUser(sender)
+            self.adapter.ackEvents(zenUser, events)
             log.debug('Done Acking all queued events.')
             transaction.commit()
             message = 'Acknowledged %d' % len(events)
@@ -80,14 +78,14 @@ class Ack(Plugin):
             message += ', '.join(events)
             client.sendMessage(message, sender, messageType)
 
-  def findUser(self, sender, adapter):
+  def findUser(self, sender):
 
         # remove the resource from the sender
         if '/' in sender:
             sender = sender.split('/')[0]
 
 
-        for user in adapter.userSettings():
+        for user in self.adapter.userSettings():
             try:
                 jabberProperty = user.getProperty('JabberId').lower()
                 if jabberProperty == sender:

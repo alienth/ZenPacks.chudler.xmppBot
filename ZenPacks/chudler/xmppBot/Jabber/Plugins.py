@@ -1,5 +1,9 @@
 import sys, logging
 
+from Products.ZenUtils.ZCmdBase import ZCmdBase
+
+from Jabber.ZenAdapter import ZenAdapter
+
 """Find and load plugins for the jabber bot"""
 
 class Plugin(object):
@@ -8,8 +12,13 @@ class Plugin(object):
     threadsafe = False
     private = True
 
-    def __init__(self, jabberClient, **kw):
-        self.jabberClient = jabberClient
+    def __init__(self, jabberClient):
+      self.jabberClient=jabberClient
+
+      dmd = ZCmdBase(noopts = True).dmd
+      self.adapter = ZenAdapter(dmd)
+
+
 
     def __repr__(self):
         return '<%s %r>' % (

@@ -2,7 +2,6 @@
 incomming message."""
 
 from Jabber.Plugins import Plugin
-from Jabber.ZenAdapter import ZenAdapter
 
 class AAZenossAdminPlugin(Plugin):
 
@@ -18,8 +17,6 @@ class AAZenossAdminPlugin(Plugin):
     if '/' in sender:
         sender = sender.split('/')[0]
 
-    adapter = ZenAdapter()
-
     if sender == None:
         log.warn('Failed to extract sender from %s.  Will not authorize communications.' % sender)
         return False
@@ -27,7 +24,7 @@ class AAZenossAdminPlugin(Plugin):
     log.debug('Got a message from %s.  Going to look for a Zenoss user to map it to.' % sender)
 
     # look through all zenoss users until we find one with the sender's JabberID
-    for user in adapter.userSettings():
+    for user in self.adapter.userSettings():
         try:
             jabberProperty = user.getProperty('JabberId').lower()
         except:

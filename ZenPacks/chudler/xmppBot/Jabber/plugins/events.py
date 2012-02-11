@@ -1,7 +1,6 @@
 """Show events from Zenoss.  Needs work!"""
 
 from Jabber.Plugins import Plugin
-from Jabber.ZenAdapter import ZenAdapter
 from Jabber.Options import Options
 from optparse import OptionError
 
@@ -28,17 +27,15 @@ class Events(Plugin):
         client.sendMessage('Unknown option, use -h for help', sender, messageType)
         return False
 
-    adapter = ZenAdapter()
-
     if options.acked:
         log.debug('Looking for Acknowledged events')
         message = 'Acknowledged Events\n'
-        events = adapter.acknowledgedEvents()
+        events = self.adapter.acknowledgedEvents()
     else:
         message = 'Current Events\n'
-        events = adapter.newEvents()
+        events = self.adapter.newEvents()
     if options.device:
-        devices = adapter.devices(options.device)
+        devices = self.adapter.devices(options.device)
         if len(devices) == 0:
             message = 'Cannot find a device, ip or mac named "%s"' % options.device
             client.sendMessage(message, sender, messageType)

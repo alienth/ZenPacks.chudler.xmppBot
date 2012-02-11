@@ -1,7 +1,6 @@
 """Check if the sender is a valid zenoss admin.  For access control"""
 
 from Jabber.Plugins import Plugin
-from Jabber.ZenAdapter import ZenAdapter
 from Jabber.Options import Options
 from optparse import OptionError
 import transaction
@@ -27,12 +26,10 @@ class SetJid(Plugin):
         client.sendMessage('No.  -u and -j are both required', sender, messageType)
         return False
 
-    adapter = ZenAdapter()
-
     jabberId = options.jabberId.lower()
 
     haveUser = False
-    for user in adapter.userSettings():
+    for user in self.adapter.userSettings():
         if user.id.lower() == options.zenUser.lower():
             haveUser = True
             try:

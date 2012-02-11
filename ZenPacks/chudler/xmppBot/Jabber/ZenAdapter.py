@@ -4,19 +4,13 @@ import glob
 
 log = logging.getLogger('zen.xmppBot')
 
-from Products.ZenUtils.ZCmdBase import ZCmdBase
 from Products.AdvancedQuery import MatchGlob, Eq, Or
 
 class ZenAdapter:
     """Thin wrapper for accessing and controlling parts of zenoss"""
 
-    def __init__(self):
-        """I don't know a suitable way to get dmd, so
-         ask ZCmdBase for it.
-        """
-        # FIXME 09JUN09:  This can have side-effects?
-        cmd = ZCmdBase(noopts = True)
-        self.dmd = cmd.dmd
+    def __init__(self, dmd):
+        self.dmd = dmd
         self.evManager = self.dmd.ZenEventManager
         self.stateMap = self.eventStates()
 

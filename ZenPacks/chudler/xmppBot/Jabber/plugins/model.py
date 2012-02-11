@@ -1,7 +1,6 @@
 """Model a device in Zenoss."""
 
 from Jabber.Plugins import Plugin
-from Jabber.ZenAdapter import ZenAdapter
 from Jabber.Options import Options
 from optparse import OptionError
 
@@ -15,7 +14,6 @@ class Model(Plugin):
 
     log.debug('Modeler plugin running with arguments: %s' % args)
 
-    adapter = ZenAdapter()
     opts = self.options()
 
     try:
@@ -34,7 +32,7 @@ class Model(Plugin):
     message = 'Please wait while the device is loaded.'
     client.sendMessage(message, sender, messageType)
 
-    adapter.loadDevice(**options.__dict__)
+    self.adapter.loadDevice(**options.__dict__)
 
     message = 'Done discovering %s.' % options.deviceName
     client.sendMessage(message, sender, messageType)
