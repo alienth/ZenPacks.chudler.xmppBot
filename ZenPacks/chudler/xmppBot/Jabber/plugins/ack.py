@@ -41,7 +41,7 @@ class Ack(Plugin):
         for event in adapter.events():
             acking.append(event.evid)
             log.debug('Queuing %s event to ack.' % event.evid)
-        return self.acknowledge(client, adapter, options.test, options.verbose, acking, sender, log)
+        return self.acknowledge(client, adapter, options.test, options.verbose, acking, sender, messageType, log)
 
     idsToAck = options.eventIds.lower().split(',')
     for event in adapter.events():
@@ -54,13 +54,13 @@ class Ack(Plugin):
                 acking.append(eventid)
 
     if len(acking) > 0:
-        return self.acknowledge(client, adapter, options.test, options.verbose, acking, sender, log)
+        return self.acknowledge(client, adapter, options.test, options.verbose, acking, sender, messageType, log)
     else:
         message = 'Sorry.  Found no events to acknowledge.'
         client.sendMessage(str(message), sender, messageType)
         return False
 
-  def acknowledge(self, client, adapter, dryrun, verbose, events, sender, log):
+  def acknowledge(self, client, adapter, dryrun, verbose, events, sender, messageType, log):
         if dryrun:
             log.debug('Test mode is activated, so events will not be acknowledged.')
             message = 'Test mode: %d WOULD have been acknowledged.' % len(events)
