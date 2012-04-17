@@ -178,7 +178,7 @@ class XmppBot(ZenActions, ZCmdBase, PBDaemon):
             else:
                 messageType = 'chat'
             self.client.sendMessage(message, recipient, messageType)
-            return True
+        return True
 
     def getAddress(self, action):
         if action.targetAddr:
