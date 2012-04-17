@@ -3,7 +3,7 @@
 # or saved.  Do not modify them directly here.
 # NB: PACKAGES is deprecated
 NAME = "ZenPacks.chudler.xmppBot"
-VERSION = "2.0~alienth1"
+VERSION = "2.0~alienth2"
 AUTHOR = "Colin Hudler"
 LICENSE = ""
 NAMESPACE_PACKAGES = ['ZenPacks', 'ZenPacks.chudler']
