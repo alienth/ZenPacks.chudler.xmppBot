@@ -9,6 +9,7 @@ class Ack(Plugin):
 
   name = 'ack'
   capabilities = ['ack', 'acknowledge', 'help']
+  minseverity = 4
   private = False
 
   def call(self, args, log, client, sender, messageType, **kw):
@@ -26,10 +27,15 @@ class Ack(Plugin):
         client.sendMessage(str(message), sender, messageType)
         return False
 
-    if options.eventIds is None and not options.all:
-        message = 'NO.  -e or --eventids is required if -a is not specified.'
+    if options.eventIds is None and options.device is None and not options.all and not arguments:
+        message = 'must specify -a, -d, or event id list'
         client.sendMessage(message, sender, messageType)
         return False
+
+    eventIds = options.eventIds
+
+    if arguments and eventIds is None and options.device is None and not options.all:
+        eventIds = arguments
 
     # we will build this list of matching eventids, then ack them using acknowledge()
     acking = []
@@ -37,21 +43,37 @@ class Ack(Plugin):
     if options.all:
         log.debug('User has requested to ack all events.')
         for event in self.adapter.events():
+            if event.severity < minseverity
+                continue
             acking.append(event.evid)
             log.debug('Queuing %s event to ack.' % event.evid)
         return self.acknowledge(client, options.test, options.verbose, acking, sender, messageType, log)
 
-    idsToAck = options.eventIds.lower().split(',')
+    if options.device:
+        log.debug('User has requested to ack all events for device %s.' % options.device)
+        for event in self.adapter.events():
+            if event.severity < minseverity
+                continue
+            if event.device == options.device
+                acking.append(event.evid)
+                log.debug('Queuing %s event to ack.' % event.evid)
+        return self.acknowledge(client, options.test, options.verbose, acking, sender, messageType, log)
+
+    idsToAck = eventIds.lower().split(',')
     for event in self.adapter.events():
         # python 2.5 will accept tuple instead of this.
         for idToAck in idsToAck:
+            if event.severity < minseverity
+                continue
             eventid = event.evid
             log.debug('Checking if eventid %s is one to ack (%s)' % (eventid, idToAck))
             if eventid.lower().startswith(idToAck) or eventid.lower().endswith(idToAck):
                 log.debug('We should ack this event: %s.  It will be queued' % eventid)
                 acking.append(eventid)
 
-    if len(acking) > 0:
+    if len(acking) > 1:
+        message = 'ambiguous results; please be more specific'
+    elif len(acking) == 1:
         return self.acknowledge(client, options.test, options.verbose, acking, sender, messageType, log)
     else:
         message = 'Sorry.  Found no events to acknowledge.'
