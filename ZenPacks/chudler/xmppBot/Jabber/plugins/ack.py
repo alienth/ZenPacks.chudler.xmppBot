@@ -28,14 +28,16 @@ class Ack(Plugin):
         return False
 
     if options.eventIds is None and options.device is None and not options.all and not arguments:
-        message = 'must specify -a, -d, or event id list'
+        message = 'must specify --all, -d, or event id list'
         client.sendMessage(message, sender, messageType)
         return False
 
-    eventIds = options.eventIds
+    if arguments and options.eventIds is None and options.device is None and not options.all:
+        idsToAck = arguments
 
-    if arguments and eventIds is None and options.device is None and not options.all:
-        eventIds = arguments
+    if options.eventIds:
+        idsToAck = options.eventIds.lower().split(',')
+
 
     # we will build this list of matching eventids, then ack them using acknowledge()
     acking = []
@@ -43,7 +45,7 @@ class Ack(Plugin):
     if options.all:
         log.debug('User has requested to ack all events.')
         for event in self.adapter.events():
-            if event.severity < minseverity
+            if event.severity < self.minseverity:
                 continue
             acking.append(event.evid)
             log.debug('Queuing %s event to ack.' % event.evid)
@@ -52,18 +54,17 @@ class Ack(Plugin):
     if options.device:
         log.debug('User has requested to ack all events for device %s.' % options.device)
         for event in self.adapter.events():
-            if event.severity < minseverity
+            if event.severity < self.minseverity:
                 continue
-            if event.device == options.device
+            if event.device == options.device:
                 acking.append(event.evid)
                 log.debug('Queuing %s event to ack.' % event.evid)
         return self.acknowledge(client, options.test, options.verbose, acking, sender, messageType, log)
 
-    idsToAck = eventIds.lower().split(',')
     for event in self.adapter.events():
         # python 2.5 will accept tuple instead of this.
         for idToAck in idsToAck:
-            if event.severity < minseverity
+            if event.severity < self.minseverity:
                 continue
             eventid = event.evid
             log.debug('Checking if eventid %s is one to ack (%s)' % (eventid, idToAck))
@@ -120,8 +121,8 @@ class Ack(Plugin):
   def options(self):
     parser = Options(description = 'Acknowledge events by eventid', prog = 'ack')
     parser.add_option('-e', '--eventids', dest='eventIds', help='Complete or partial eventids to ack.  Ids can be sepratated by commas.  Partial ids can match either the beginning or end of the eventid.')
-    parser.add_option('-a', '--all', dest='all', action='store_true', default=False, help='Acknowledge all events.  If -e is also specified, it will still acknowledge every event.')
-    parser.add_option('-d', '--device', dest='device', help='Only ack events that exist on this device.  NOT IMPLEMENTED.')
+    parser.add_option('--all', dest='all', action='store_true', default=False, help='Acknowledge all events.  If -e is also specified, it will still acknowledge every event.')
+    parser.add_option('-d', '--device', dest='device', help='Only ack events that exist on this device.')
     parser.add_option('-v', '--verbose', dest='verbose', action='store_true', default=False, help='Send list of all acknowledged events.  Can be noisy.  USE WITH CAUTION.')
     parser.add_option('-t', '--test', dest='test', action='store_true', default=False, help='Do not acknowledge events, but show what would be done.  Works with -v.')
     return parser
