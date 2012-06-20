@@ -74,6 +74,8 @@ class Ack(Plugin):
 
     if len(acking) > 1:
         message = 'ambiguous results; please be more specific'
+        client.sendMessage(str(message), sender, messageType)
+        return False
     elif len(acking) == 1:
         return self.acknowledge(client, options.test, options.verbose, acking, sender, messageType, log)
     else:
